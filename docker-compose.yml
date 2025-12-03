@@ -10,12 +10,12 @@ services:
       - N8N_PROTOCOL=http
       - GENERIC_TIMEZONE=Asia/Tokyo
       - TZ=Asia/Tokyo
-      # カスタムノードの自動読み込みを有効化
-      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom
       - NODE_FUNCTION_ALLOW_EXTERNAL=*
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./custom-node/n8n-node-pleasanter:/home/node/.n8n/custom/n8n-nodes-pleasanter:ro
+      # ビルド済みのカスタムノードをマウント
+      - ./custom-node/n8n-node-pleasanter/dist:/home/node/.n8n/nodes/n8n-nodes-pleasanter/dist:ro
+      - ./custom-node/n8n-node-pleasanter/package.json:/home/node/.n8n/nodes/n8n-nodes-pleasanter/package.json:ro
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
       interval: 30s
