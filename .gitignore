@@ -3,6 +3,7 @@
 *.journal
 config
 nodes/
+custom-nodes/
 
 # Build output
 custom-node/*/dist/
