@@ -1,0 +1,156 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const itemCreateDescription: INodeProperties[] = [
+	{
+		displayName: 'Site ID',
+		name: 'siteId',
+		type: 'number',
+		required: true,
+		default: 0,
+		description: 'The ID of the site to create the record in',
+		displayOptions: {
+			show: {
+				operation: ['create'],
+			},
+		},
+	},
+	{
+		displayName: 'Title',
+		name: 'title',
+		type: 'string',
+		default: '',
+		description: 'The title of the record',
+		displayOptions: {
+			show: {
+				operation: ['create'],
+			},
+		},
+	},
+	{
+		displayName: 'Body',
+		name: 'body',
+		type: 'string',
+		typeOptions: {
+			rows: 5,
+		},
+		default: '',
+		description: 'The body content of the record',
+		displayOptions: {
+			show: {
+				operation: ['create'],
+			},
+		},
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				operation: ['create'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Check Hash (JSON)',
+				name: 'checkHash',
+				type: 'json',
+				default: '{}',
+				description: 'Check fields (CheckA-CheckZ) as JSON object',
+			},
+			{
+				displayName: 'Class Hash (JSON)',
+				name: 'classHash',
+				type: 'json',
+				default: '{}',
+				description: 'Classification fields (ClassA-ClassZ) as JSON object',
+			},
+			{
+				displayName: 'Comments',
+				name: 'comments',
+				type: 'string',
+				default: '',
+				description: 'Comments for the record',
+			},
+			{
+				displayName: 'Completion Time',
+				name: 'completionTime',
+				type: 'dateTime',
+				default: '',
+				description: 'The completion time of the record',
+			},
+			{
+				displayName: 'Date Hash (JSON)',
+				name: 'dateHash',
+				type: 'json',
+				default: '{}',
+				description: 'Date fields (DateA-DateZ) as JSON object',
+			},
+			{
+				displayName: 'Description Hash (JSON)',
+				name: 'descriptionHash',
+				type: 'json',
+				default: '{}',
+				description: 'Description fields (DescriptionA-DescriptionZ) as JSON object',
+			},
+			{
+				displayName: 'Locked',
+				name: 'locked',
+				type: 'boolean',
+				default: false,
+				description: 'Whether the record is locked',
+			},
+			{
+				displayName: 'Manager',
+				name: 'manager',
+				type: 'number',
+				default: 0,
+				description: 'The user ID of the manager',
+			},
+			{
+				displayName: 'Num Hash (JSON)',
+				name: 'numHash',
+				type: 'json',
+				default: '{}',
+				description: 'Numeric fields (NumA-NumZ) as JSON object',
+			},
+			{
+				displayName: 'Owner',
+				name: 'owner',
+				type: 'number',
+				default: 0,
+				description: 'The user ID of the owner',
+			},
+			{
+				displayName: 'Progress Rate',
+				name: 'progressRate',
+				type: 'number',
+				default: 0,
+				description: 'The progress rate (0-100)',
+			},
+			{
+				displayName: 'Start Time',
+				name: 'startTime',
+				type: 'dateTime',
+				default: '',
+				description: 'The start time of the record',
+			},
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'number',
+				default: 0,
+				description: 'The status value of the record',
+			},
+			{
+				displayName: 'Work Value',
+				name: 'workValue',
+				type: 'number',
+				default: 0,
+				description: 'The work value of the record',
+			},
+		],
+	},
+];
