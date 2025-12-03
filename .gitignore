@@ -5,6 +5,12 @@ config
 nodes/
 custom-nodes/
 
+# n8n volume data (keep only nodes folder structure)
+volume/*
+!volume/nodes/
+volume/nodes/*
+!volume/nodes/.gitkeep
+
 # Build output
 custom-node/*/dist/
 
