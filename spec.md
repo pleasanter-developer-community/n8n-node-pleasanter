@@ -84,44 +84,144 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 
 ### 2.1 クラス構成図
 
+```mermaid
+classDiagram
+    direction TB
+    
+    %% Credentials
+    class PleasanterApi {
+        <<ICredentialType>>
+        +name: string = 'pleasanterApi'
+        +displayName: string = 'Pleasanter API'
+        +documentationUrl: string
+        +icon: Icon
+        +properties: INodeProperties[]
+        +test: ICredentialTestRequest
+    }
+    
+    %% Main Node
+    class Pleasanter {
+        <<INodeType>>
+        +description: INodeTypeDescription
+        +execute() Promise~INodeExecutionData[][]~
+    }
+    
+    %% Interfaces
+    class IPleasanterCredentials {
+        <<interface>>
+        +baseUrl: string
+        +apiKey: string
+        +apiVersion: string
+    }
+    
+    class IPleasanterView {
+        <<interface>>
+        +Incomplete?: boolean
+        +Own?: boolean
+        +Search?: string
+        +ColumnFilterHash?: object
+        +ColumnSorterHash?: object
+        +ApiDataType?: string
+        +ApiColumnKeyDisplayType?: string
+        +ApiColumnValueDisplayType?: string
+    }
+    
+    class IPleasanterRequestBody {
+        <<interface>>
+        +ApiVersion?: string
+        +ApiKey: string
+        +View?: IPleasanterView
+        +Title?: string
+        +Body?: string
+        +...fields
+    }
+    
+    class IPleasanterResponse {
+        <<interface>>
+        +Id?: number
+        +StatusCode: number
+        +Message?: string
+        +Response?: object
+    }
+    
+    %% Generic Functions
+    class GenericFunctions {
+        <<module>>
+        +pleasanterApiRequest(method, endpoint, body) Promise~IPleasanterResponse~
+    }
+    
+    %% Description Modules
+    class ItemGetDescription {
+        <<module>>
+        +itemGetDescription: INodeProperties[]
+    }
+    
+    class ItemCreateDescription {
+        <<module>>
+        +itemCreateDescription: INodeProperties[]
+    }
+    
+    class ItemUpdateDescription {
+        <<module>>
+        +itemUpdateDescription: INodeProperties[]
+    }
+    
+    class ItemDeleteDescription {
+        <<module>>
+        +itemDeleteDescription: INodeProperties[]
+    }
+    
+    %% Relationships
+    Pleasanter ..> PleasanterApi : uses credentials
+    Pleasanter ..> GenericFunctions : calls
+    Pleasanter ..> ItemGetDescription : imports
+    Pleasanter ..> ItemCreateDescription : imports
+    Pleasanter ..> ItemUpdateDescription : imports
+    Pleasanter ..> ItemDeleteDescription : imports
+    
+    GenericFunctions ..> IPleasanterCredentials : uses
+    GenericFunctions ..> IPleasanterRequestBody : creates
+    GenericFunctions ..> IPleasanterResponse : returns
+    
+    IPleasanterRequestBody ..> IPleasanterView : contains
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Credentials                               │
-├─────────────────────────────────────────────────────────────────┤
-│  PleasanterApi.credentials.ts                                   │
-│  └── class PleasanterApi implements ICredentialType             │
-│       - name: 'pleasanterApi'                                   │
-│       - displayName: 'Pleasanter API'                           │
-│       - properties: [baseUrl, apiKey, apiVersion]               │
-│       - test: ICredentialTestRequest                            │
-└─────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────┐
-│                          Node                                    │
-├─────────────────────────────────────────────────────────────────┤
-│  Pleasanter.node.ts                                             │
-│  └── class Pleasanter implements INodeType                      │
-│       - description: INodeTypeDescription                       │
-│       - async execute(): Promise<INodeExecutionData[][]>        │
-│                                                                  │
-│  GenericFunctions.ts                                            │
-│  └── pleasanterApiRequest() - API呼び出し共通関数               │
-│       ※ APIキーをリクエストボディに含める特殊な認証方式に対応   │
-│                                                                  │
-│  PleasanterInterface.ts                                         │
-│  └── interface IPleasanterCredentials                           │
-│  └── interface IPleasanterView                                  │
-│  └── interface IPleasanterRequestBody                           │
-│  └── interface IPleasanterResponse                              │
-│  └── type PleasanterOperation                                   │
-│                                                                  │
-│  descriptions/                                                   │
-│  └── ItemGetDescription.ts      - Get操作のUI定義               │
-│  └── ItemCreateDescription.ts   - Create操作のUI定義            │
-│  └── ItemUpdateDescription.ts   - Update操作のUI定義            │
-│  └── ItemDeleteDescription.ts   - Delete操作のUI定義            │
-│  └── index.ts                   - エクスポート集約              │
-└─────────────────────────────────────────────────────────────────┘
+### 2.2 ファイル構成図
+
+```mermaid
+graph TD
+    subgraph credentials["credentials/"]
+        A[PleasanterApi.credentials.ts]
+    end
+    
+    subgraph nodes["nodes/Pleasanter/"]
+        B[Pleasanter.node.ts]
+        C[GenericFunctions.ts]
+        D[PleasanterInterface.ts]
+        
+        subgraph descriptions["descriptions/"]
+            E[index.ts]
+            F[ItemGetDescription.ts]
+            G[ItemCreateDescription.ts]
+            H[ItemUpdateDescription.ts]
+            I[ItemDeleteDescription.ts]
+        end
+    end
+    
+    subgraph icons["icons/"]
+        J[pleasanter.svg]
+    end
+    
+    B --> C
+    B --> D
+    B --> E
+    E --> F
+    E --> G
+    E --> H
+    E --> I
+    C --> D
+    B -.-> J
+    B -.-> A
 ```
 
 ### 2.2 認証情報（Credentials）
@@ -465,3 +565,4 @@ docker-compose down && docker-compose up -d
 | 2025-12-03 | 1.1.0 | 詳細なファイル構成とクラス設計を追加 |
 | 2025-12-03 | 2.0.0 | 実装コードを削除し、クラス構造・構成の仕様に整理 |
 | 2025-12-03 | 2.1.0 | Docker環境設定を更新（N8N_CUSTOM_EXTENSIONS、custom-nodesフォルダ構成） |
+| 2025-12-03 | 2.2.0 | クラス構成図をMermaid形式に変更 |
