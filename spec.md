@@ -36,7 +36,7 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 │       │   └── PleasanterApi.credentials.ts     # 認証情報定義
 │       └── dist/                                # ビルド出力先
 ├── volume/                                      # n8nデータディレクトリ（Dockerマウント先）
-│   └── nodes/
+│   └── custom-nodes/                            # カスタムノード配置先（N8N_CUSTOM_EXTENSIONS）
 │       └── n8n-nodes-pleasanter/                # カスタムノードのデプロイ先
 │           ├── dist/                            # ビルド成果物
 │           └── package.json
@@ -342,14 +342,54 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 
 ## 4. Docker環境設定
 
-### 4.1 ボリュームマウント構成
+### 4.1 docker-compose.yml
+
+```yaml
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - GENERIC_TIMEZONE=Asia/Tokyo
+      - TZ=Asia/Tokyo
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom-nodes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./volume:/home/node/.n8n
+      - ./volume/custom-nodes:/home/node/.n8n/custom-nodes
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+```
+
+### 4.2 ボリュームマウント構成
 
 | ホストパス | コンテナパス | 説明 |
 |------------|--------------|------|
 | ./volume | /home/node/.n8n | n8nデータディレクトリ全体 |
-| ./volume/nodes/ | /home/node/.n8n/nodes/ | カスタムノード配置先（n8nが自動読み込み） |
+| ./volume/custom-nodes | /home/node/.n8n/custom-nodes | カスタムノード配置先 |
 
-**注意**: n8nは `/home/node/.n8n/nodes/` ディレクトリ内のパッケージを自動的にカスタムノードとして読み込みます。
+### 4.3 重要な環境変数
+
+| 環境変数 | 値 | 説明 |
+|----------|-----|------|
+| N8N_CUSTOM_EXTENSIONS | /home/node/.n8n/custom-nodes | カスタムノードのディレクトリパス |
+| NODE_FUNCTION_ALLOW_EXTERNAL | * | 外部モジュールの使用を許可 |
+
+**注意**: 
+- `N8N_CUSTOM_EXTENSIONS` 環境変数でカスタムノードのディレクトリを明示的に指定する必要があります
+- カスタムノードは `./volume/custom-nodes/` に配置し、別途ボリュームマウントします
+- n8nはコンテナ起動時に指定されたディレクトリからカスタムノードを自動的に読み込みます
 
 ---
 
@@ -359,7 +399,14 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 
 **Windows (PowerShell)**:
 ```powershell
+# ビルドとデプロイのみ
 .\deploy.ps1
+
+# ビルドとデプロイ後、n8nを再起動
+.\deploy.ps1 -Restart
+
+# ビルドをスキップしてデプロイのみ
+.\deploy.ps1 -SkipBuild
 ```
 
 **Linux/Mac (Bash)**:
@@ -376,22 +423,29 @@ npm install
 npm run build
 
 # デプロイ
-mkdir -p ../../volume/nodes/n8n-nodes-pleasanter
-cp -r dist ../../volume/nodes/n8n-nodes-pleasanter/
-cp package.json ../../volume/nodes/n8n-nodes-pleasanter/
+mkdir -p ../../volume/custom-nodes/n8n-nodes-pleasanter
+cp -r dist ../../volume/custom-nodes/n8n-nodes-pleasanter/
+cp package.json ../../volume/custom-nodes/n8n-nodes-pleasanter/
 ```
 
 ### 5.3 n8n起動
 
 ```bash
+# 初回起動
 docker-compose up -d
+
+# 再起動（カスタムノード更新後）
+docker-compose restart n8n
+
+# 完全停止して再起動
+docker-compose down && docker-compose up -d
 ```
 
-### 5.4 開発時のホットリロード
+### 5.4 開発時のワークフロー
 
-1. コードを修正
-2. デプロイスクリプトを再実行
-3. n8nを再起動（`docker-compose restart`）
+1. ソースコードを修正
+2. デプロイスクリプトを実行: `.\deploy.ps1 -Restart`
+3. n8nのUIでノードを確認
 
 ---
 
@@ -410,3 +464,4 @@ docker-compose up -d
 | 2025-12-03 | 1.0.0 | 初版作成 |
 | 2025-12-03 | 1.1.0 | 詳細なファイル構成とクラス設計を追加 |
 | 2025-12-03 | 2.0.0 | 実装コードを削除し、クラス構造・構成の仕様に整理 |
+| 2025-12-03 | 2.1.0 | Docker環境設定を更新（N8N_CUSTOM_EXTENSIONS、custom-nodesフォルダ構成） |

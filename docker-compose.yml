@@ -11,8 +11,12 @@ services:
       - GENERIC_TIMEZONE=Asia/Tokyo
       - TZ=Asia/Tokyo
       - NODE_FUNCTION_ALLOW_EXTERNAL=*
+      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom-nodes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./volume:/home/node/.n8n
+      - ./volume/custom-nodes:/home/node/.n8n/custom-nodes
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
       interval: 30s
