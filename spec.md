@@ -14,11 +14,11 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 ```
 ./
 ├── custom-node/
-│   └── n8n-node-pleasanter/           # カスタムノードプロジェクト
+│   └── n8n-node-pleasanter/           # カスタムノードプロジェクト（ソースコード）
 │       ├── package.json               # パッケージ設定
 │       ├── tsconfig.json              # TypeScript設定
-│       ├── .eslintrc.js               # ESLint設定
 │       ├── .prettierrc.js             # Prettier設定
+│       ├── eslint.config.mjs          # ESLint設定
 │       ├── icons/
 │       │   └── pleasanter.svg         # ノードアイコン
 │       ├── nodes/
@@ -35,9 +35,15 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 │       ├── credentials/
 │       │   └── PleasanterApi.credentials.ts     # 認証情報定義
 │       └── dist/                                # ビルド出力先
+├── volume/                                      # n8nデータディレクトリ（Dockerマウント先）
+│   └── nodes/
+│       └── n8n-nodes-pleasanter/                # カスタムノードのデプロイ先
+│           ├── dist/                            # ビルド成果物
+│           └── package.json
 ├── docker-compose.yml                           # n8n実行環境構築用
-├── volume/
-│   └── custom-node/                             # カスタムノードのマウント先
+├── deploy.ps1                                   # デプロイスクリプト（Windows）
+├── deploy.sh                                    # デプロイスクリプト（Linux/Mac）
+├── README.md                                    # プロジェクト説明
 └── spec.md                                      # 本仕様書
 ```
 
@@ -960,65 +966,100 @@ export class Pleasanter implements INodeType {
 ### 4.1 docker-compose.yml
 
 ```yaml
-version: '3.8'
-
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n
-    restart: always
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
     ports:
       - "5678:5678"
     environment:
       - N8N_HOST=localhost
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
-      - NODE_FUNCTION_ALLOW_EXTERNAL=*
       - GENERIC_TIMEZONE=Asia/Tokyo
       - TZ=Asia/Tokyo
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
     volumes:
       - ./volume:/home/node/.n8n
-      - ./volume/custom-node:/home/node/.n8n/custom
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 ```
 
 ### 4.2 ボリュームマウント構成
 
 | ホストパス | コンテナパス | 説明 |
 |------------|--------------|------|
-| ./volume | /home/node/.n8n | n8nデータディレクトリ |
-| ./volume/custom-node | /home/node/.n8n/custom | カスタムノード配置先 |
+| ./volume | /home/node/.n8n | n8nデータディレクトリ全体 |
+| ./volume/nodes/ | /home/node/.n8n/nodes/ | カスタムノード配置先（n8nが自動読み込み） |
+
+**注意**: n8nは `/home/node/.n8n/nodes/` ディレクトリ内のパッケージを自動的にカスタムノードとして読み込みます。
 
 ---
 
 ## 5. ビルド・デプロイ手順
 
-### 5.1 ビルド
+### 5.1 デプロイスクリプトを使用（推奨）
+
+プロジェクトルートに用意されたデプロイスクリプトを使用すると、ビルドからデプロイまでを一括で実行できます。
+
+**Windows (PowerShell)**:
+```powershell
+.\deploy.ps1
+```
+
+**Linux/Mac (Bash)**:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### 5.2 手動ビルド・デプロイ
+
+#### ビルド
 
 ```bash
 cd custom-node/n8n-node-pleasanter
+npm install
 npm run build
 ```
 
-### 5.2 カスタムノードの配置
+#### カスタムノードの配置
 
 ```bash
+# デプロイ先ディレクトリを作成
+mkdir -p ../../volume/nodes/n8n-nodes-pleasanter
+
 # ビルド成果物をコピー
-cp -r dist/* ../../volume/custom-node/
-cp package.json ../../volume/custom-node/
+cp -r dist ../../volume/nodes/n8n-nodes-pleasanter/
+cp package.json ../../volume/nodes/n8n-nodes-pleasanter/
 ```
 
 ### 5.3 n8n起動
 
 ```bash
-cd ../..
+cd ../..  # プロジェクトルートに移動
 docker-compose up -d
 ```
 
 ### 5.4 動作確認
 
 1. ブラウザで `http://localhost:5678` にアクセス
-2. ワークフローを新規作成
-3. ノード追加で「Pleasanter」を検索
-4. Pleasanterノードが表示されることを確認
+2. 初回起動時はアカウント作成を行う
+3. ワークフローを新規作成
+4. ノード追加で「Pleasanter」を検索
+5. Pleasanterノードが表示されることを確認
+
+### 5.5 開発時のホットリロード
+
+開発中にコード変更を反映するには、以下の手順を実行します：
+
+1. コードを修正
+2. デプロイスクリプトを再実行（`./deploy.ps1` または `./deploy.sh`）
+3. n8nを再起動（`docker-compose restart`）
 
 ---
 
