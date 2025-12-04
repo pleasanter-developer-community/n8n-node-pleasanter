@@ -115,6 +115,38 @@ AIエージェントがこの仕様に基づいてアプリケーションを自
 
 5. ビルド成果物を `./volume/nodes/n8n-nodes-pleasanter` にコピー
 
+### 1.3 TypeScript設定の注意事項
+
+`tsconfig.json` の `module` および `moduleResolution` 設定には注意が必要です。
+
+**推奨設定**:
+```json
+{
+  "compilerOptions": {
+    "module": "node16",
+    "moduleResolution": "node16"
+  }
+}
+```
+
+**非推奨設定（警告が出る）**:
+```json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node"  // TypeScript 7.0で削除予定
+  }
+}
+```
+
+| 設定 | 説明 |
+|------|------|
+| `"module": "node16"` | Node.js 16以降のモジュールシステムに対応。ESMとCommonJSの両方をサポート |
+| `"moduleResolution": "node16"` | Node.js 16以降のモジュール解決アルゴリズムを使用。非推奨警告なし |
+| `"moduleResolution": "node"` | 旧設定（node10相当）。TypeScript 7.0で削除予定のため非推奨 |
+
+**注意**: `"moduleResolution": "node"` は `"node10"` のエイリアスであり、TypeScript 7.0で機能しなくなります。新規プロジェクトでは `"node16"` を使用してください。
+
 ---
 
 ## 2. クラス設計
@@ -676,3 +708,4 @@ docker-compose down && docker-compose up -d
 | 2025-12-04 | 2.3.0 | Get操作のViewパラメータを拡充（OpenAPI仕様に準拠） |
 | 2025-12-04 | 2.4.0 | Get APIレスポンス処理を追加（Response.Data配列を個別アイテムとして出力） |
 | 2025-12-04 | 2.5.0 | 開発指針を強化（基準ドキュメントの優先順位、確認ルール、禁止事項を明確化） |
+| 2025-12-04 | 2.6.0 | TypeScript設定の注意事項を追加（moduleResolution: node16 推奨） |
