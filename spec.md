@@ -5,6 +5,43 @@
 本ドキュメントは、n8n用のPleasanter APIカスタムノードを作成するための仕様書です。
 AIエージェントがこの仕様に基づいてアプリケーションを自動生成することを目的としています。
 
+### 開発指針
+
+#### 基準ドキュメント（権威ある情報源）
+
+以下のドキュメントが**正式な仕様**です。本spec.mdはこれらに基づいて作成されています。
+
+| 領域 | 基準ドキュメント | 用途 |
+|------|------------------|------|
+| Pleasanter API | [Pleasanter API OpenAPI仕様](https://pleasanter-developer-community.github.io/pleasanter-open-api/pleasanterApi.yml) | エンドポイント、リクエスト/レスポンス形式、パラメータ |
+| n8nノード開発 | [n8n カスタムノード開発ガイド](https://docs.n8n.io/integrations/creating-nodes/) | ノード実装パターン、ベストプラクティス |
+| 実装参考 | [n8n-nodes-starter リポジトリ](https://github.com/n8n-io/n8n-nodes-starter) | プロジェクト構成、コード例 |
+
+#### n8n ドキュメント詳細リファレンス
+
+| カテゴリ | ドキュメント | 内容 |
+|----------|--------------|------|
+| 設計判断 | [ノード構築スタイルの選択](https://docs.n8n.io/integrations/creating-nodes/plan/choose-node-method/) | 宣言型 vs プログラマティック型の選択基準 |
+| 実装 | [認証情報ファイル](https://docs.n8n.io/integrations/creating-nodes/build/reference/credentials-files/) | ICredentialType インターフェース、認証パラメータの定義方法 |
+| 実装 | [HTTP ヘルパー](https://docs.n8n.io/integrations/creating-nodes/build/reference/http-helpers/) | httpRequest / httpRequestWithAuthentication の使用方法 |
+| 実装 | [アイテムリンク（pairedItem）](https://docs.n8n.io/integrations/creating-nodes/build/reference/paired-items/) | プログラマティック型での pairedItem 設定 |
+| 実装 | [プログラマティック型 execute メソッド](https://docs.n8n.io/integrations/creating-nodes/build/reference/node-base-files/programmatic-style-execute-method/) | execute() メソッドの実装パターン |
+| 実装 | [UI要素](https://docs.n8n.io/integrations/creating-nodes/build/reference/ui-elements/) | INodeProperties によるUI定義 |
+| テスト | [ローカルテスト](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) | 開発中のノードをローカルでテストする方法 |
+
+#### 実装時の確認ルール
+
+1. **新機能・変更の実装前**: 必ず上記の基準ドキュメントを確認し、仕様に準拠していることを確認する
+2. **本spec.mdとの矛盾**: 基準ドキュメントの内容が**常に優先**される。矛盾を発見した場合はspec.mdを修正する
+3. **本spec.mdに記載のない実装**: 基準ドキュメントを参照して実装し、必要に応じてspec.mdに追記する
+4. **spec.mdの変更時**: 基準ドキュメントとの整合性を確認し、変更履歴を更新する
+
+#### 禁止事項
+
+- 基準ドキュメントを確認せずに独自の推測で実装すること
+- 基準ドキュメントに存在しないAPIパラメータやレスポンスフィールドを追加すること
+- n8nの非推奨パターンやアンチパターンを使用すること
+
 ---
 
 ## 1. プロジェクト構成
@@ -624,17 +661,10 @@ docker-compose down && docker-compose up -d
 2. デプロイスクリプトを実行: `.\deploy.ps1 -Restart`
 3. n8nのUIでノードを確認
 
----
-
-## 6. 参考リンク
-
-- [Pleasanter API OpenAPI仕様](https://pleasanter-developer-community.github.io/pleasanter-open-api/pleasanterApi.yml)
-- [n8n カスタムノード開発ガイド](https://docs.n8n.io/integrations/creating-nodes/)
-- [n8n-nodes-starter リポジトリ](https://github.com/n8n-io/n8n-nodes-starter)
 
 ---
 
-## 7. 変更履歴
+## 6. 変更履歴
 
 | 日付 | バージョン | 変更内容 |
 |------|------------|----------|
@@ -645,3 +675,4 @@ docker-compose down && docker-compose up -d
 | 2025-12-03 | 2.2.0 | クラス構成図をMermaid形式に変更 |
 | 2025-12-04 | 2.3.0 | Get操作のViewパラメータを拡充（OpenAPI仕様に準拠） |
 | 2025-12-04 | 2.4.0 | Get APIレスポンス処理を追加（Response.Data配列を個別アイテムとして出力） |
+| 2025-12-04 | 2.5.0 | 開発指針を強化（基準ドキュメントの優先順位、確認ルール、禁止事項を明確化） |
