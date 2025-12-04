@@ -89,11 +89,43 @@ export class Pleasanter implements INodeType {
 
 				if (operation === 'get') {
 					const siteIdOrRecordId = this.getNodeParameter('siteIdOrRecordId', i) as number;
-					const viewJson = this.getNodeParameter('view', i, '{}') as string;
+					const options = this.getNodeParameter('options', i, {}) as IDataObject;
 
 					const body: IDataObject = {};
-					if (viewJson && viewJson !== '{}') {
-						body.View = JSON.parse(viewJson);
+					const view: IDataObject = {};
+
+					// Boolean options
+					if (options.incomplete) view.Incomplete = options.incomplete;
+					if (options.own) view.Own = options.own;
+					if (options.nearCompletionTime) view.NearCompletionTime = options.nearCompletionTime;
+					if (options.delay) view.Delay = options.delay;
+					if (options.overdue) view.Overdue = options.overdue;
+					if (options.mergeSessionViewFilters) view.MergeSessionViewFilters = options.mergeSessionViewFilters;
+					if (options.mergeSessionViewSorters) view.MergeSessionViewSorters = options.mergeSessionViewSorters;
+
+					// String options
+					if (options.search) view.Search = options.search;
+					if (options.apiDataType) view.ApiDataType = options.apiDataType;
+					if (options.apiColumnKeyDisplayType) view.ApiColumnKeyDisplayType = options.apiColumnKeyDisplayType;
+					if (options.apiColumnValueDisplayType) view.ApiColumnValueDisplayType = options.apiColumnValueDisplayType;
+
+					// JSON options
+					if (options.columnFilterHash) {
+						view.ColumnFilterHash = JSON.parse(options.columnFilterHash as string);
+					}
+					if (options.columnSorterHash) {
+						view.ColumnSorterHash = JSON.parse(options.columnSorterHash as string);
+					}
+					if (options.apiColumnHash) {
+						view.ApiColumnHash = JSON.parse(options.apiColumnHash as string);
+					}
+					if (options.gridColumns) {
+						view.GridColumns = JSON.parse(options.gridColumns as string);
+					}
+
+					// Only add View if there are any options set
+					if (Object.keys(view).length > 0) {
+						body.View = view;
 					}
 
 					response = await pleasanterApiRequest.call(

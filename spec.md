@@ -320,7 +320,27 @@ graph TD
 | パラメータ名 | 表示名 | 型 | 必須 | 説明 |
 |-------------|--------|-----|------|------|
 | siteIdOrRecordId | Site ID or Record ID | number | ○ | サイトIDまたはレコードID |
-| view | View (JSON) | json | - | フィルタ・ソート条件 |
+| options | Options | collection | - | 取得オプション（View設定） |
+
+**オプション（options collection内）**:
+
+| パラメータ名 | 表示名 | 型 | 説明 |
+|-------------|--------|-----|------|
+| incomplete | Incomplete | boolean | 未完了のみ |
+| own | Own | boolean | 自分が担当のみ |
+| nearCompletionTime | Near Completion Time | boolean | 完了日時が近いもののみ |
+| delay | Delay | boolean | 遅延しているもののみ |
+| overdue | Overdue | boolean | 期限超過のもののみ |
+| search | Search | string | 検索キーワード |
+| columnFilterHash | Column Filter Hash (JSON) | json | カラムフィルタ条件 |
+| columnSorterHash | Column Sorter Hash (JSON) | json | カラムソート条件 |
+| apiDataType | API Data Type | options | レスポンス形式（Default/KeyValues） |
+| apiColumnKeyDisplayType | API Column Key Display Type | options | カラムキー表示形式（LabelText/ColumnName） |
+| apiColumnValueDisplayType | API Column Value Display Type | options | カラム値表示形式（DisplayValue/Value/Text） |
+| apiColumnHash | API Column Hash (JSON) | json | 取得カラム設定 |
+| gridColumns | Grid Columns (JSON) | json | レスポンスに含めるカラム指定 |
+| mergeSessionViewFilters | Merge Session View Filters | boolean | セッションビューフィルタとマージ |
+| mergeSessionViewSorters | Merge Session View Sorters | boolean | セッションビューソーターとマージ |
 
 #### ItemCreateDescription.ts
 
@@ -396,12 +416,19 @@ graph TD
 |------------|------|------|
 | Incomplete | boolean | 未完了のみ |
 | Own | boolean | 自分が担当のみ |
+| NearCompletionTime | boolean | 完了日時が近いもののみ |
+| Delay | boolean | 遅延しているもののみ |
+| Overdue | boolean | 期限超過のもののみ |
 | Search | string | 検索文字列 |
 | ColumnFilterHash | object | カラムフィルタ |
 | ColumnSorterHash | object | カラムソート |
 | ApiDataType | string | 'Default' \| 'KeyValues' |
 | ApiColumnKeyDisplayType | string | 'LabelText' \| 'ColumnName' |
 | ApiColumnValueDisplayType | string | 'DisplayValue' \| 'Value' \| 'Text' |
+| ApiColumnHash | object | 取得カラム設定 |
+| GridColumns | object | レスポンスに含めるカラム指定 |
+| MergeSessionViewFilters | boolean | セッションビューフィルタとマージ |
+| MergeSessionViewSorters | boolean | セッションビューソーターとマージ |
 
 ### 3.5 レコードフィールド（Create/Update操作）
 
@@ -566,3 +593,4 @@ docker-compose down && docker-compose up -d
 | 2025-12-03 | 2.0.0 | 実装コードを削除し、クラス構造・構成の仕様に整理 |
 | 2025-12-03 | 2.1.0 | Docker環境設定を更新（N8N_CUSTOM_EXTENSIONS、custom-nodesフォルダ構成） |
 | 2025-12-03 | 2.2.0 | クラス構成図をMermaid形式に変更 |
+| 2025-12-04 | 2.3.0 | Get操作のViewパラメータを拡充（OpenAPI仕様に準拠） |
