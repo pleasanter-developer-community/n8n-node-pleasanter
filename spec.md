@@ -308,7 +308,9 @@ graph TD
 1. 入力データをループ処理
 2. 操作タイプに応じてパラメータを取得
 3. `pleasanterApiRequest()` でAPI呼び出し
-4. 結果を `constructExecutionMetaData()` で整形
+4. レスポンス処理:
+   - **Get操作**: `Response.Data` 配列の各要素を個別のアイテムとして出力
+   - **その他（Create/Update/Delete）**: レスポンス全体を1アイテムとして出力
 5. `continueOnFail()` でエラーハンドリング
 
 ### 2.6 操作別UI定義（Descriptions）
@@ -453,6 +455,8 @@ graph TD
 
 ### 3.6 レスポンス構造
 
+#### Create/Update/Delete レスポンス
+
 | フィールド | 型 | 説明 |
 |-----------|------|------|
 | Id | number | 作成/更新/削除されたレコードID |
@@ -460,10 +464,56 @@ graph TD
 | LimitPerDate | number | 1日あたりのAPI制限 |
 | LimitRemaining | number | 残りAPI呼び出し回数 |
 | Message | string | メッセージ |
-| Response.Offset | number | オフセット（Get時） |
-| Response.PageSize | number | ページサイズ（Get時） |
-| Response.TotalCount | number | 総件数（Get時） |
-| Response.Data | array | レコードデータ（Get時） |
+
+#### Get レスポンス
+
+| フィールド | 型 | 説明 |
+|-----------|------|------|
+| StatusCode | number | HTTPステータスコード |
+| LimitPerDate | number | 1日あたりのAPI制限 |
+| LimitRemaining | number | 残りAPI呼び出し回数 |
+| Response.Offset | number | オフセット |
+| Response.PageSize | number | ページサイズ |
+| Response.TotalCount | number | 総件数 |
+| Response.Data | array | レコードデータ配列 |
+
+**Response.Data 配列要素（responseItem）**:
+
+| フィールド | 型 | 説明 |
+|-----------|------|------|
+| SiteId | number | サイトID |
+| ResultId / IssueId | number | レコードID（テーブルタイプにより異なる） |
+| Ver | number | バージョン番号 |
+| Title | string | タイトル |
+| Body | string | 本文 |
+| Status | number | ステータス |
+| Manager | number | 担当者ID |
+| Owner | number | 管理者ID |
+| StartTime | string | 開始日時 |
+| CompletionTime | string | 完了日時 |
+| WorkValue | number | 作業量 |
+| ProgressRate | number | 進捗率 |
+| RemainingWorkValue | number | 残作業量 |
+| Locked | boolean | ロック状態 |
+| Creator | number | 作成者ID |
+| Updator | number | 更新者ID |
+| CreatedTime | string | 作成日時 |
+| UpdatedTime | string | 更新日時 |
+| ClassHash | object | 分類項目（ClassA-ClassZ） |
+| NumHash | object | 数値項目（NumA-NumZ） |
+| DateHash | object | 日付項目（DateA-DateZ） |
+| DescriptionHash | object | 説明項目（DescriptionA-DescriptionZ） |
+| CheckHash | object | チェック項目（CheckA-CheckZ） |
+| AttachmentsHash | object | 添付ファイル項目（AttachmentsA-AttachmentsZ） |
+
+### 3.7 n8nノードの出力形式
+
+| 操作 | 出力形式 | 説明 |
+|------|----------|------|
+| Get | 複数アイテム | `Response.Data` 配列の各要素が個別のアイテムとして出力される |
+| Create | 単一アイテム | レスポンス全体（Id, StatusCode, Message等）が1アイテムとして出力 |
+| Update | 単一アイテム | レスポンス全体（Id, StatusCode, Message等）が1アイテムとして出力 |
+| Delete | 単一アイテム | レスポンス全体（Id, StatusCode, Message等）が1アイテムとして出力 |
 
 ---
 
@@ -594,3 +644,4 @@ docker-compose down && docker-compose up -d
 | 2025-12-03 | 2.1.0 | Docker環境設定を更新（N8N_CUSTOM_EXTENSIONS、custom-nodesフォルダ構成） |
 | 2025-12-03 | 2.2.0 | クラス構成図をMermaid形式に変更 |
 | 2025-12-04 | 2.3.0 | Get操作のViewパラメータを拡充（OpenAPI仕様に準拠） |
+| 2025-12-04 | 2.4.0 | Get APIレスポンス処理を追加（Response.Data配列を個別アイテムとして出力） |

@@ -231,11 +231,23 @@ export class Pleasanter implements INodeType {
 				}
 
 				// レスポンスをNodeExecutionData形式に変換
-				const executionData = this.helpers.constructExecutionMetaData(
-					this.helpers.returnJsonArray(response as unknown as IDataObject),
-					{ itemData: { item: i } },
-				);
-				returnData.push(...executionData);
+				if (operation === 'get' && response?.Response?.Data) {
+					// Get操作: Response.Data配列の各要素を個別のアイテムとして出力
+					const records = response.Response.Data as IDataObject[];
+					for (const record of records) {
+						returnData.push({
+							json: record,
+							pairedItem: { item: i },
+						});
+					}
+				} else {
+					// その他の操作: レスポンス全体を出力
+					const executionData = this.helpers.constructExecutionMetaData(
+						this.helpers.returnJsonArray(response as unknown as IDataObject),
+						{ itemData: { item: i } },
+					);
+					returnData.push(...executionData);
+				}
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({
