@@ -1,237 +1,227 @@
-# n8n-node-pleasanter
+# n8n-nodes-pleasanter
 
-[n8n](https://n8n.io/) 用の [Pleasanter](https://pleasanter.org/) API カスタムノードです。
+n8n用のPleasanter APIカスタムノードです。
 
-> **Note**: このプロジェクトは [spec.md](./spec.md) の仕様書に基づいて実装されています。
+[Pleasanter OpenAPI仕様](https://pleasanter-developer-community.github.io/pleasanter-open-api/pleasanterApi.yml)に準拠して実装されています。
 
-## 機能概要
+## 機能
 
-Pleasanter は、ノーコード・ローコードで業務アプリケーションを作成できるオープンソースの Web データベースです。本カスタムノードを使用することで、n8n のワークフローから Pleasanter のデータを操作できます。
+Pleasanter APIを通じて以下の操作が可能です：
 
-### 対応操作
-
-| 操作 | APIエンドポイント | 説明 |
-|------|------------------|------|
-| **Get** | `POST /api/items/{id}/get` | レコードを取得（View フィルタ・ソート対応） |
-| **Create** | `POST /api/items/{siteId}/create` | 新規レコードを作成 |
-| **Update** | `POST /api/items/{recordId}/update` | 既存レコードを更新 |
-| **Delete** | `POST /api/items/{recordId}/delete` | レコードを削除 |
-
-### 対応フィールド
-
-- **基本フィールド**: Title, Body, Status, Manager, Owner, StartTime, CompletionTime, WorkValue, ProgressRate, Comments, Locked
-- **拡張フィールド**: ClassHash (ClassA-Z), NumHash (NumA-Z), DateHash (DateA-Z), DescriptionHash (DescriptionA-Z), CheckHash (CheckA-Z)
+| 操作 | 説明 |
+|------|------|
+| **Get** | レコードの取得（単一/複数） |
+| **Create** | レコードの作成 |
+| **Update** | レコードの更新 |
+| **Delete** | レコードの削除 |
 
 ## インストール
 
-### npm からインストール（予定）
+### コミュニティノードとして
 
-```bash
-npm install n8n-nodes-pleasanter
-```
+1. n8nの設定 > Community nodes に移動
+2. `n8n-nodes-pleasanter` を検索してインストール
 
 ### 手動インストール
 
-1. このリポジトリをクローン：
-   ```bash
-   git clone https://github.com/pleasanter-developer-community/n8n-node-pleasanter.git
-   cd n8n-node-pleasanter
-   ```
+```bash
+cd ~/.n8n/nodes
+npm install n8n-nodes-pleasanter
+```
 
-2. 依存関係をインストールしてビルド：
-   ```bash
-   cd custom-node/n8n-node-pleasanter
-   npm install
-   npm run build
-   ```
-
-3. ビルド成果物（`dist/`）を n8n のカスタムノードディレクトリにコピー
-
-### Docker での使用
-
-同梱の `docker-compose.yml` を使用して n8n を起動できます：
+### 開発環境
 
 ```bash
-docker-compose up -d
-```
-
-ブラウザで http://localhost:5678 にアクセスしてください。
-
-## 使い方
-
-### 1. 認証情報の設定
-
-Pleasanter ノードを使用する前に、認証情報（Credentials）を設定する必要があります。
-
-1. n8n で「Credentials」→「Add Credential」を選択
-2. 「Pleasanter API」を検索して選択
-3. 以下の情報を入力：
-
-| パラメータ | 説明 | 例 |
-|-----------|------|-----|
-| **Base URL** | Pleasanter サーバーの URL | `https://pleasanter.example.com` |
-| **API Key** | Pleasanter の API キー | ユーザー設定画面から取得 |
-| **API Version** | API バージョン | `1.1`（推奨） |
-
-### 2. ノードの使用
-
-ワークフローに「Pleasanter」ノードを追加し、操作を選択します。
-
-#### レコードの取得（Get）
-
-サイト ID を指定してテーブル内の全レコードを取得、または レコード ID を指定して単一レコードを取得します。
-
-```
-パラメータ:
-- Site ID or Record ID: テーブルのサイト ID またはレコード ID
-- View (JSON): フィルター条件（オプション）
-```
-
-**View の例** - ステータスが 100 のレコードのみ取得：
-```json
-{
-  "ColumnFilterHash": {
-    "Status": "[100]"
-  }
-}
-```
-
-**View の例** - 作成日で降順ソート：
-```json
-{
-  "ColumnSorterHash": {
-    "CreatedTime": "desc"
-  }
-}
-```
-
-#### レコードの作成（Create）
-
-```
-パラメータ:
-- Site ID: レコードを作成するテーブルのサイト ID
-- Title: レコードのタイトル
-- Body: レコードの本文
-- Additional Fields: Status, Manager, Owner, ClassHash など
-```
-
-#### レコードの更新（Update）
-
-```
-パラメータ:
-- Record ID: 更新するレコードの ID
-- Update Fields: 更新するフィールドの値
-```
-
-#### レコードの削除（Delete）
-
-```
-パラメータ:
-- Record ID: 削除するレコードの ID
-```
-
-### 3. ワークフロー例
-
-#### 例1: Pleasanter から Slack に通知
-
-```
-[Schedule Trigger] → [Pleasanter: Get] → [IF: 新規レコード?] → [Slack: Send Message]
-```
-
-#### 例2: フォーム送信から Pleasanter にレコード作成
-
-```
-[Webhook] → [Pleasanter: Create] → [Respond to Webhook]
-```
-
-## プロジェクト構造
-
-```
-n8n-node-pleasanter/
-├── custom-node/n8n-node-pleasanter/
-│   ├── credentials/
-│   │   └── PleasanterApi.credentials.ts  # 認証情報定義
-│   ├── nodes/Pleasanter/
-│   │   ├── Pleasanter.node.ts            # メインノードクラス
-│   │   ├── GenericFunctions.ts           # API 呼び出し共通関数
-│   │   ├── PleasanterInterface.ts        # 型定義
-│   │   └── descriptions/                 # 操作別 UI 定義
-│   │       ├── ItemGetDescription.ts
-│   │       ├── ItemCreateDescription.ts
-│   │       ├── ItemUpdateDescription.ts
-│   │       ├── ItemDeleteDescription.ts
-│   │       └── index.ts
-│   ├── icons/
-│   │   └── pleasanter.svg                # ノードアイコン
-│   ├── package.json
-│   └── tsconfig.json
-├── docker-compose.yml                    # Docker 環境設定
-├── spec.md                               # 実装仕様書
-└── README.md
-```
-
-## 開発
-
-### 前提条件
-
-- Node.js 18 以上
-- npm
-
-### ビルド
-
-```bash
-cd custom-node/n8n-node-pleasanter
+cd n8n-nodes-pleasanter
 npm install
 npm run build
 ```
 
-### Lint
+## 設定
+
+### クレデンシャル
+
+| パラメータ | 説明 | 例 |
+|------------|------|-----|
+| **Base URL** | PleasanterサーバーのURL | `https://your-pleasanter.com` |
+| **API Key** | Pleasanter APIキー | - |
+| **API Version** | APIバージョン | `1.0` または `1.1` |
+
+## 使用方法
+
+### レコード取得 (Get)
+
+サイトIDまたはレコードIDを指定してレコードを取得します。
+
+#### ビューオプション
+
+| パラメータ | 型 | 説明 |
+|------------|------|------|
+| Offset | number | ページネーション用オフセット |
+| Incomplete | boolean | 未完了のレコードのみ取得 |
+| Own | boolean | 自分が担当のレコードのみ取得 |
+| NearCompletionTime | boolean | 期限が近いレコードのみ取得 |
+| Delay | boolean | 遅延しているレコードのみ取得 |
+| Overdue | boolean | 期限超過のレコードのみ取得 |
+| Search | string | 検索キーワード |
+| ColumnFilterHash | object | 列フィルタ条件（キーと値のペア） |
+| ColumnSorterHash | object | ソート条件（項目名とasc/descのペア） |
+| ColumnFilterSearchTypes | object | 項目ごとの検索方法 |
+| ColumnFilterNegatives | array | 否定条件にする項目名の配列 |
+| GridColumns | array | 返却される項目を制御する配列 |
+| ApiDataType | string | APIの形式（Default/KeyValues） |
+| ApiColumnKeyDisplayType | string | Keyの表示形式（LabelText/ColumnName） |
+| ApiColumnValueDisplayType | string | Valueの表示形式（DisplayValue/Value/Text） |
+| ApiColumnHash | object | 項目単位でKey/Valueの表示形式を指定 |
+| MergeSessionViewFilters | boolean | セッションのフィルタ条件とマージ |
+| MergeSessionViewSorters | boolean | セッションのソート条件とマージ |
+
+#### レスポンスに含まれる情報
+
+| フィールド | 説明 |
+|------------|------|
+| StatusCode | ステータスコード |
+| LimitPerDate | 1日あたりのAPI呼び出し制限数 |
+| LimitRemaining | 残りのAPI呼び出し可能数 |
+| Offset | 現在のオフセット値 |
+| PageSize | 1ページあたりの件数 |
+| TotalCount | 総件数 |
+| + レコードデータ | 各レコードのフィールド |
+
+### レコード作成 (Create)
+
+サイトIDを指定して新しいレコードを作成します。
+
+#### レコードデータ
+
+| パラメータ | 型 | 説明 |
+|------------|------|------|
+| Title | string | タイトル項目 |
+| Body | string | 内容項目 |
+| StartTime | datetime | 開始日時（期限付きテーブルのみ） |
+| CompletionTime | datetime | 完了日時（期限付きテーブルのみ） |
+| WorkValue | number | 作業量（期限付きテーブルのみ） |
+| ProgressRate | number | 進捗率（期限付きテーブルのみ） |
+| RemainingWorkValue | number | 残作業量（期限付きテーブルのみ） |
+| Status | number | 状況項目 |
+| Manager | number | 管理者のユーザID |
+| Owner | number | 担当者のユーザID |
+| Locked | boolean | ロック状態 |
+| Comments | string | コメント項目 |
+| ItemTitle | string | タイトル項目（別名） |
+| ClassHash | object | 分類項目（ClassA〜ClassZ） |
+| NumHash | object | 数値項目（NumA〜NumZ） |
+| DateHash | object | 日付項目（DateA〜DateZ） |
+| DescriptionHash | object | 説明項目（DescriptionA〜DescriptionZ） |
+| CheckHash | object | チェック項目（CheckA〜CheckZ） |
+| AttachmentsHash | object | 添付ファイル項目（AttachmentsA〜AttachmentsZ） |
+
+#### プロセスオプション
+
+| パラメータ | 型 | 説明 |
+|------------|------|------|
+| ProcessId | number | 実行するプロセスのID |
+| ProcessIds | array | 実行する複数のプロセスIDの配列 |
+| RecordPermissions | array | レコードのアクセス制御（例: User,10,1 / Dept,1,31） |
+
+#### レスポンスに含まれる情報
+
+| フィールド | 説明 |
+|------------|------|
+| StatusCode | ステータスコード |
+| LimitPerDate | 1日あたりのAPI呼び出し制限数 |
+| LimitRemaining | 残りのAPI呼び出し可能数 |
+| Id | 作成されたレコードID |
+| Message | 結果メッセージ |
+
+### レコード更新 (Update)
+
+レコードIDを指定して既存レコードを更新します。
+
+設定可能なパラメータはレコード作成と同様です。
+
+### レコード削除 (Delete)
+
+レコードIDを指定してレコードを削除します。
+
+#### レスポンスに含まれる情報
+
+| フィールド | 説明 |
+|------------|------|
+| StatusCode | ステータスコード |
+| LimitPerDate | 1日あたりのAPI呼び出し制限数 |
+| LimitRemaining | 残りのAPI呼び出し可能数 |
+| Id | 削除されたレコードID |
+| Message | 結果メッセージ |
+
+## プロジェクト構成
+
+```
+n8n-nodes-pleasanter/
+├── nodes/Pleasanter/
+│   ├── Pleasanter.node.ts          # メインノードクラス
+│   ├── types.ts                    # 型定義
+│   ├── pleasanter.svg              # アイコン
+│   ├── transport/                  # API通信層
+│   │   ├── index.ts
+│   │   └── GenericFunctions.ts     # API関数
+│   ├── actions/                    # 操作実行層
+│   │   ├── index.ts
+│   │   └── record/
+│   │       ├── index.ts
+│   │       ├── get.operation.ts
+│   │       ├── create.operation.ts
+│   │       ├── update.operation.ts
+│   │       └── delete.operation.ts
+│   └── descriptions/               # UIフィールド定義層
+│       ├── index.ts
+│       ├── CommonDescription.ts
+│       ├── GetDescription.ts
+│       ├── CreateDescription.ts
+│       ├── UpdateDescription.ts
+│       ├── DeleteDescription.ts
+│       └── RecordDataDescription.ts
+└── credentials/
+    └── PleasanterApi.credentials.ts
+```
+
+## 開発
+
+### Docker環境でテスト
+
+```bash
+# プロジェクトルートで
+docker-compose up -d
+```
+
+n8nは http://localhost:5678 でアクセス可能です。
+
+### ビルド
+
+```bash
+cd n8n-nodes-pleasanter
+npm run build
+```
+
+### 監視モード
+
+```bash
+npm run dev
+```
+
+### リント
 
 ```bash
 npm run lint
-npm run lint:fix  # 自動修正
+npm run lintfix
 ```
 
-### ウォッチモード（開発時）
+## 参考資料
 
-```bash
-npm run build:watch
-```
-
-## 技術仕様
-
-本プロジェクトは以下の仕様・ガイドラインに基づいて実装されています：
-
-- **設計仕様書**: [spec.md](./spec.md)
-- **Pleasanter API**: [OpenAPI 仕様](https://pleasanter-developer-community.github.io/pleasanter-open-api/pleasanterApi.yml)
-- **n8n カスタムノード**: [開発ガイド](https://docs.n8n.io/integrations/creating-nodes/)
-- **ベーステンプレート**: [n8n-nodes-starter](https://github.com/n8n-io/n8n-nodes-starter)
-
-### API 認証方式
-
-Pleasanter API は、一般的なヘッダー認証ではなく、リクエストボディに API キーを含める方式を採用しています。本ノードはこの仕様に対応した専用の API リクエスト関数を実装しています。
-
-```typescript
-// リクエストボディに ApiKey と ApiVersion を自動追加
-{
-  "ApiVersion": "1.1",
-  "ApiKey": "your-api-key",
-  // ...その他のパラメータ
-}
-```
+- [Pleasanter OpenAPI仕様](https://pleasanter-developer-community.github.io/pleasanter-open-api/pleasanterApi.yml)
+- [n8n開発ガイド](https://docs.n8n.io/integrations/creating-nodes/)
+- [Pleasanter公式ドキュメント](https://pleasanter.org/manual)
 
 ## ライセンス
 
-[MIT](custom-node/n8n-node-pleasanter/LICENSE.md)
-
-## コントリビュート
-
-Issue や Pull Request を歓迎します。
-
-## リンク
-
-- [Pleasanter 公式サイト](https://pleasanter.org/)
-- [Pleasanter API マニュアル](https://pleasanter.org/manual/api)
-- [n8n 公式サイト](https://n8n.io/)
-- [n8n ドキュメント](https://docs.n8n.io/)
-
+MIT

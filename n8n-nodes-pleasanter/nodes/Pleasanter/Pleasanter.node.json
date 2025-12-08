@@ -1,0 +1,22 @@
+{
+  "node": "n8n-nodes-base.pleasanter",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Data & Storage"],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://pleasanter.org/manual"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://pleasanter.org/manual/api"
+      }
+    ]
+  },
+  "alias": ["pleasanter", "database", "record"],
+  "subcategories": {
+    "Data & Storage": ["Database"]
+  }
+}

@@ -1,48 +1,15 @@
-# n8n data files (not for version control)
-*.sqlite
-*.journal
-config
-nodes/
-custom-nodes/
+# Docker volume data
+volume/
 
-# n8n volume data (keep only nodes folder structure)
-volume/*
-!volume/nodes/
-volume/nodes/*
-!volume/nodes/.gitkeep
-
-# Build output
-custom-node/*/dist/
-
-# Dependencies
-custom-node/*/node_modules/
-
-# IDE / Editor
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-.idea/
-*.swp
-*.swo
-
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
 
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
 # Logs
 *.log
-npm-debug.log*
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Test coverage
-coverage/
-
-# Docker volumes (if using local bind mounts)
-n8n_data/
