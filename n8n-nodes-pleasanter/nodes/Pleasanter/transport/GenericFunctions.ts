@@ -61,76 +61,87 @@ export function checkApiResponse(response: IPleasanterApiResponse): void {
 /**
  * ノードパラメータからレコードデータオブジェクトを構築
  * Pleasanter OpenAPIのItemDataおよびItemRequestスキーマに基づく
+ * 全てのフィールドはrecordDataコレクション内にあり、明示的に指定された項目のみ送信される
  */
 export function buildRecordData(
   this: IExecuteFunctions,
   itemIndex: number,
 ): IDataObject {
-  const recordData: IDataObject = {};
+  const result: IDataObject = {};
+  const recordData = this.getNodeParameter('recordData', itemIndex, {}) as IDataObject;
 
   // ==================== 基本フィールド ====================
-  const title = this.getNodeParameter('title', itemIndex, '') as string;
-  if (title) recordData.Title = title;
+  if (recordData.title !== undefined && recordData.title !== '') {
+    result.Title = recordData.title as string;
+  }
 
-  const body = this.getNodeParameter('body', itemIndex, '') as string;
-  if (body) recordData.Body = body;
+  if (recordData.body !== undefined && recordData.body !== '') {
+    result.Body = recordData.body as string;
+  }
 
-  const status = this.getNodeParameter('status', itemIndex, '') as number | string;
-  if (status !== '') recordData.Status = Number(status);
+  if (recordData.status !== undefined) {
+    result.Status = Number(recordData.status);
+  }
 
-  const manager = this.getNodeParameter('manager', itemIndex, '') as number | string;
-  if (manager !== '') recordData.Manager = Number(manager);
+  if (recordData.manager !== undefined) {
+    result.Manager = Number(recordData.manager);
+  }
 
-  const owner = this.getNodeParameter('owner', itemIndex, '') as number | string;
-  if (owner !== '') recordData.Owner = Number(owner);
+  if (recordData.owner !== undefined) {
+    result.Owner = Number(recordData.owner);
+  }
+
+  if (recordData.comments !== undefined && recordData.comments !== '') {
+    result.Comments = recordData.comments as string;
+  }
+
+  if (recordData.locked !== undefined) {
+    result.Locked = recordData.locked as boolean;
+  }
 
   // ==================== 日付フィールド（期限付きテーブルのみ） ====================
-  const startTime = this.getNodeParameter('startTime', itemIndex, '') as string;
-  if (startTime) recordData.StartTime = startTime;
+  if (recordData.startTime !== undefined && recordData.startTime !== '') {
+    result.StartTime = recordData.startTime as string;
+  }
 
-  const completionTime = this.getNodeParameter('completionTime', itemIndex, '') as string;
-  if (completionTime) recordData.CompletionTime = completionTime;
+  if (recordData.completionTime !== undefined && recordData.completionTime !== '') {
+    result.CompletionTime = recordData.completionTime as string;
+  }
 
   // ==================== 進捗フィールド（期限付きテーブルのみ） ====================
-  const workValue = this.getNodeParameter('workValue', itemIndex, '') as number | string;
-  if (workValue !== '') recordData.WorkValue = Number(workValue);
-
-  const progressRate = this.getNodeParameter('progressRate', itemIndex, '') as number | string;
-  if (progressRate !== '') recordData.ProgressRate = Number(progressRate);
-
-  const remainingWorkValue = this.getNodeParameter('remainingWorkValue', itemIndex, '') as number | string;
-  if (remainingWorkValue !== '') recordData.RemainingWorkValue = Number(remainingWorkValue);
-
-  // ==================== その他フィールド ====================
-  const locked = this.getNodeParameter('locked', itemIndex, false) as boolean;
-  if (locked) recordData.Locked = locked;
-
-  const comments = this.getNodeParameter('comments', itemIndex, '') as string;
-  if (comments) recordData.Comments = comments;
-
-  // ==================== ハッシュフィールド（追加） ====================
-  const additionalFields = this.getNodeParameter('additionalFields', itemIndex, {}) as IDataObject;
-
-  if (additionalFields.classHash) {
-    recordData.ClassHash = parseJsonField(additionalFields.classHash);
-  }
-  if (additionalFields.numHash) {
-    recordData.NumHash = parseJsonField(additionalFields.numHash);
-  }
-  if (additionalFields.dateHash) {
-    recordData.DateHash = parseJsonField(additionalFields.dateHash);
-  }
-  if (additionalFields.descriptionHash) {
-    recordData.DescriptionHash = parseJsonField(additionalFields.descriptionHash);
-  }
-  if (additionalFields.checkHash) {
-    recordData.CheckHash = parseJsonField(additionalFields.checkHash);
-  }
-  if (additionalFields.attachmentsHash) {
-    recordData.AttachmentsHash = parseJsonField(additionalFields.attachmentsHash);
+  if (recordData.workValue !== undefined) {
+    result.WorkValue = Number(recordData.workValue);
   }
 
-  return recordData;
+  if (recordData.progressRate !== undefined) {
+    result.ProgressRate = Number(recordData.progressRate);
+  }
+
+  if (recordData.remainingWorkValue !== undefined) {
+    result.RemainingWorkValue = Number(recordData.remainingWorkValue);
+  }
+
+  // ==================== ハッシュフィールド ====================
+  if (recordData.classHash) {
+    result.ClassHash = parseJsonField(recordData.classHash);
+  }
+  if (recordData.numHash) {
+    result.NumHash = parseJsonField(recordData.numHash);
+  }
+  if (recordData.dateHash) {
+    result.DateHash = parseJsonField(recordData.dateHash);
+  }
+  if (recordData.descriptionHash) {
+    result.DescriptionHash = parseJsonField(recordData.descriptionHash);
+  }
+  if (recordData.checkHash) {
+    result.CheckHash = parseJsonField(recordData.checkHash);
+  }
+  if (recordData.attachmentsHash) {
+    result.AttachmentsHash = parseJsonField(recordData.attachmentsHash);
+  }
+
+  return result;
 }
 
 /**

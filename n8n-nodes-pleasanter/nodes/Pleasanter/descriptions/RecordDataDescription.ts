@@ -3,182 +3,13 @@ import type { INodeProperties } from 'n8n-workflow';
 /**
  * CreateとUpdate操作用の共通フィールド
  * Pleasanter OpenAPIのItemDataおよびItemRequestスキーマに基づく
+ * 全てのフィールドはオプショナルで、明示的に指定された項目のみAPIに送信される
  */
 export const recordDataFields: INodeProperties[] = [
-  // ==================== 基本フィールド ====================
+  // ==================== 基本フィールド（Additional Fields） ====================
   {
-    displayName: 'Title',
-    name: 'title',
-    type: 'string',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The title of the record (タイトル項目)',
-  },
-  {
-    displayName: 'Body',
-    name: 'body',
-    type: 'string',
-    typeOptions: {
-      rows: 4,
-    },
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The body content of the record (内容項目)',
-  },
-  {
-    displayName: 'Status',
-    name: 'status',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The status code of the record (状況項目)',
-  },
-  {
-    displayName: 'Manager',
-    name: 'manager',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The manager user ID (管理者のユーザID)',
-  },
-  {
-    displayName: 'Owner',
-    name: 'owner',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The owner user ID (担当者のユーザID)',
-  },
-
-  // ==================== 日付/時間フィールド（期限付きテーブルのみ） ====================
-  {
-    displayName: 'Start Time',
-    name: 'startTime',
-    type: 'dateTime',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The start time of the record (開始日時、期限付きテーブルのみ)',
-  },
-  {
-    displayName: 'Completion Time',
-    name: 'completionTime',
-    type: 'dateTime',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The completion time of the record (完了日時、期限付きテーブルのみ)',
-  },
-
-  // ==================== 進捗フィールド（期限付きテーブルのみ） ====================
-  {
-    displayName: 'Work Value',
-    name: 'workValue',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The work value of the record (作業量、期限付きテーブルのみ)',
-  },
-  {
-    displayName: 'Progress Rate',
-    name: 'progressRate',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The progress rate 0-100 (進捗率、期限付きテーブルのみ)',
-  },
-  {
-    displayName: 'Remaining Work Value',
-    name: 'remainingWorkValue',
-    type: 'number',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'The remaining work value (残作業量、期限付きテーブルのみ)',
-  },
-
-  // ==================== その他フィールド ====================
-  {
-    displayName: 'Locked',
-    name: 'locked',
-    type: 'boolean',
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: false,
-    description: 'Whether the record is locked (ロック状態)',
-  },
-  {
-    displayName: 'Comments',
-    name: 'comments',
-    type: 'string',
-    typeOptions: {
-      rows: 2,
-    },
-    displayOptions: {
-      show: {
-        resource: ['record'],
-        operation: ['create', 'update'],
-      },
-    },
-    default: '',
-    description: 'Comments for the record (コメント項目)',
-  },
-
-  // ==================== ハッシュフィールド（追加） ====================
-  {
-    displayName: 'Additional Fields',
-    name: 'additionalFields',
+    displayName: 'Record Data',
+    name: 'recordData',
     type: 'collection',
     placeholder: 'Add Field',
     default: {},
@@ -188,7 +19,105 @@ export const recordDataFields: INodeProperties[] = [
         operation: ['create', 'update'],
       },
     },
+    description: 'Record data fields. Only explicitly specified fields will be sent to the API.',
     options: [
+      // ==================== 基本フィールド ====================
+      {
+        displayName: 'Title',
+        name: 'title',
+        type: 'string',
+        default: '',
+        description: 'The title of the record (タイトル項目)',
+      },
+      {
+        displayName: 'Body',
+        name: 'body',
+        type: 'string',
+        typeOptions: {
+          rows: 4,
+        },
+        default: '',
+        description: 'The body content of the record (内容項目)',
+      },
+      {
+        displayName: 'Status',
+        name: 'status',
+        type: 'number',
+        default: 0,
+        description: 'The status code of the record (状況項目)',
+      },
+      {
+        displayName: 'Manager',
+        name: 'manager',
+        type: 'number',
+        default: 0,
+        description: 'The manager user ID (管理者のユーザID)',
+      },
+      {
+        displayName: 'Owner',
+        name: 'owner',
+        type: 'number',
+        default: 0,
+        description: 'The owner user ID (担当者のユーザID)',
+      },
+      {
+        displayName: 'Comments',
+        name: 'comments',
+        type: 'string',
+        typeOptions: {
+          rows: 2,
+        },
+        default: '',
+        description: 'Comments for the record (コメント項目)',
+      },
+      {
+        displayName: 'Locked',
+        name: 'locked',
+        type: 'boolean',
+        default: false,
+        description: 'Whether the record is locked (ロック状態)',
+      },
+
+      // ==================== 日付/時間フィールド（期限付きテーブルのみ） ====================
+      {
+        displayName: 'Start Time',
+        name: 'startTime',
+        type: 'dateTime',
+        default: '',
+        description: 'The start time of the record (開始日時、期限付きテーブルのみ)',
+      },
+      {
+        displayName: 'Completion Time',
+        name: 'completionTime',
+        type: 'dateTime',
+        default: '',
+        description: 'The completion time of the record (完了日時、期限付きテーブルのみ)',
+      },
+
+      // ==================== 進捗フィールド（期限付きテーブルのみ） ====================
+      {
+        displayName: 'Work Value',
+        name: 'workValue',
+        type: 'number',
+        default: 0,
+        description: 'The work value of the record (作業量、期限付きテーブルのみ)',
+      },
+      {
+        displayName: 'Progress Rate',
+        name: 'progressRate',
+        type: 'number',
+        default: 0,
+        description: 'The progress rate 0-100 (進捗率、期限付きテーブルのみ)',
+      },
+      {
+        displayName: 'Remaining Work Value',
+        name: 'remainingWorkValue',
+        type: 'number',
+        default: 0,
+        description: 'The remaining work value (残作業量、期限付きテーブルのみ)',
+      },
+
+      // ==================== ハッシュフィールド ====================
       {
         displayName: 'Class Hash (JSON)',
         name: 'classHash',
@@ -252,7 +181,7 @@ export const recordDataFields: INodeProperties[] = [
         displayName: 'Process ID',
         name: 'processId',
         type: 'number',
-        default: '',
+        default: 0,
         description: 'ID of the process to execute (実行するプロセスのID)',
       },
       {

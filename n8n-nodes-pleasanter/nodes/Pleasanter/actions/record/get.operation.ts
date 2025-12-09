@@ -12,6 +12,7 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
   const returnData: INodeExecutionData[] = [];
   const siteIdOrRecordId = this.getNodeParameter('siteIdOrRecordId', index) as string;
+  const outputFormat = this.getNodeParameter('outputFormat', index, 'flat') as string;
   const viewOptions = this.getNodeParameter('viewOptions', index, {}) as IDataObject;
 
   const body: IDataObject = {};
@@ -34,6 +35,17 @@ export async function execute(
 
   // レスポンスからデータを返却
   const getResponse = response as unknown as IPleasanterGetResponse;
+
+  // Raw形式: 元のAPIレスポンス構造をそのまま返却
+  if (outputFormat === 'raw') {
+    returnData.push({
+      json: response,
+      pairedItem: { item: index },
+    });
+    return returnData;
+  }
+
+  // Flat形式: 各レコードを個別のアイテムとしてメタデータ付きで返却
   if (getResponse.Response?.Data) {
     // APIレスポンスベースのメタデータ（レート制限情報等）
     const apiMetadata = {

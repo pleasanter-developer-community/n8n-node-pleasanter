@@ -18,6 +18,32 @@ export const getFields: INodeProperties[] = [
     default: '',
     description: 'The Site ID to get multiple records, or Record ID to get a single record',
   },
+  // Output format option
+  {
+    displayName: 'Output Format',
+    name: 'outputFormat',
+    type: 'options',
+    displayOptions: {
+      show: {
+        resource: ['record'],
+        operation: ['get'],
+      },
+    },
+    options: [
+      {
+        name: 'Flat',
+        value: 'flat',
+        description: 'Each record as separate item with metadata (n8n friendly)',
+      },
+      {
+        name: 'Raw',
+        value: 'raw',
+        description: 'Original API response structure with Data array',
+      },
+    ],
+    default: 'flat',
+    description: 'Output format for the response. Flat: each record as separate item. Raw: original API structure.',
+  },
   // View options
   {
     displayName: 'View Options',
