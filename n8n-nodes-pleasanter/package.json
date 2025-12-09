@@ -8,22 +8,26 @@
     "api"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/pleasanter-developer-community/n8n-node-pleasanter",
   "author": {
-    "name": ""
+    "name": "Pleasanter Developer Community",
+    "url": "https://github.com/pleasanter-developer-community"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/pleasanter-developer-community/n8n-node-pleasanter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pleasanter-developer-community/n8n-node-pleasanter/issues"
   },
   "main": "index.js",
   "scripts": {
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    "lint": "eslint nodes/**/*.ts credentials/**/*.ts",
+    "lintfix": "eslint nodes/**/*.ts credentials/**/*.ts --fix",
+    "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
     "dist"
