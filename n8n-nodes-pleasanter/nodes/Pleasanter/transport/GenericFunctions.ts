@@ -123,19 +123,24 @@ export function buildRecordData(
 
   // ==================== ハッシュフィールド ====================
   if (recordData.classHash) {
-    result.ClassHash = parseJsonField(recordData.classHash);
+    const hash = buildHashFromFixedCollection(recordData.classHash);
+    if (hash) result.ClassHash = hash;
   }
   if (recordData.numHash) {
-    result.NumHash = parseJsonField(recordData.numHash);
+    const hash = buildHashFromFixedCollection(recordData.numHash);
+    if (hash) result.NumHash = hash;
   }
   if (recordData.dateHash) {
-    result.DateHash = parseJsonField(recordData.dateHash);
+    const hash = buildHashFromFixedCollection(recordData.dateHash);
+    if (hash) result.DateHash = hash;
   }
   if (recordData.descriptionHash) {
-    result.DescriptionHash = parseJsonField(recordData.descriptionHash);
+    const hash = buildHashFromFixedCollection(recordData.descriptionHash);
+    if (hash) result.DescriptionHash = hash;
   }
   if (recordData.checkHash) {
-    result.CheckHash = parseJsonField(recordData.checkHash);
+    const hash = buildHashFromFixedCollection(recordData.checkHash);
+    if (hash) result.CheckHash = hash;
   }
   if (recordData.attachmentsHash) {
     result.AttachmentsHash = parseJsonField(recordData.attachmentsHash);
@@ -198,6 +203,27 @@ function parseJsonField(value: unknown): IDataObject | undefined {
 }
 
 /**
+ * fixedCollectionのKey-Valueペアからハッシュオブジェクトを構築
+ */
+function buildHashFromFixedCollection(collection: unknown): IDataObject | undefined {
+  if (!collection || typeof collection !== 'object') return undefined;
+
+  const data = collection as IDataObject;
+  const items = data.items as Array<{ key: string; value: string | number | boolean }> | undefined;
+
+  if (!items || !Array.isArray(items) || items.length === 0) return undefined;
+
+  const hash: IDataObject = {};
+  for (const item of items) {
+    if (item.key && item.key.trim() !== '') {
+      hash[item.key] = item.value as string | number | boolean;
+    }
+  }
+
+  return Object.keys(hash).length > 0 ? hash : undefined;
+}
+
+/**
  * ノードパラメータからビューオプションを構築
  * Pleasanter OpenAPIのViewスキーマに基づく
  */
@@ -223,15 +249,15 @@ export function buildViewOptions(
   // ==================== 検索 ====================
   if (viewOptions.search) view.Search = viewOptions.search;
 
-  // ==================== カラムフィルタハッシュ（JSON） ====================
+  // ==================== カラムフィルタハッシュ ====================
   if (viewOptions.columnFilterHash) {
-    const filterHash = parseJsonFieldForView(viewOptions.columnFilterHash);
+    const filterHash = buildHashFromFixedCollection(viewOptions.columnFilterHash);
     if (filterHash) view.ColumnFilterHash = filterHash;
   }
 
-  // ==================== カラムフィルタ検索タイプ（JSON） ====================
+  // ==================== カラムフィルタ検索タイプ ====================
   if (viewOptions.columnFilterSearchTypes) {
-    const searchTypes = parseJsonFieldForView(viewOptions.columnFilterSearchTypes);
+    const searchTypes = buildHashFromFixedCollection(viewOptions.columnFilterSearchTypes);
     if (searchTypes) view.ColumnFilterSearchTypes = searchTypes;
   }
 
@@ -246,9 +272,9 @@ export function buildViewOptions(
     }
   }
 
-  // ==================== カラムソータハッシュ（JSON） ====================
+  // ==================== カラムソータハッシュ ====================
   if (viewOptions.columnSorterHash) {
-    const sorterHash = parseJsonFieldForView(viewOptions.columnSorterHash);
+    const sorterHash = buildHashFromFixedCollection(viewOptions.columnSorterHash);
     if (sorterHash) view.ColumnSorterHash = sorterHash;
   }
 
@@ -274,9 +300,9 @@ export function buildViewOptions(
     view.ApiColumnValueDisplayType = viewOptions.apiColumnValueDisplayType;
   }
 
-  // ==================== APIカラムハッシュ（JSON） ====================
+  // ==================== APIカラムハッシュ ====================
   if (viewOptions.apiColumnHash) {
-    const columnHash = parseJsonFieldForView(viewOptions.apiColumnHash);
+    const columnHash = buildHashFromFixedCollection(viewOptions.apiColumnHash);
     if (columnHash) view.ApiColumnHash = columnHash;
   }
 
@@ -291,18 +317,4 @@ export function buildViewOptions(
   return Object.keys(view).length > 0 ? view : undefined;
 }
 
-/**
- * ビューオプション用のJSONフィールドをパース
- */
-function parseJsonFieldForView(value: unknown): IDataObject | undefined {
-  if (!value) return undefined;
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      return Object.keys(parsed).length > 0 ? parsed : undefined;
-    } catch {
-      return undefined;
-    }
-  }
-  return value as IDataObject;
-}
+

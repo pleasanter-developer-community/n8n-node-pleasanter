@@ -42,7 +42,8 @@ export const getFields: INodeProperties[] = [
       },
     ],
     default: 'flat',
-    description: 'Output format for the response. Flat: each record as separate item. Raw: original API structure.',
+    description:
+      'Output format for the response. Flat: each record as separate item. Raw: original API structure.',
   },
   // View options
   {
@@ -108,39 +109,163 @@ export const getFields: INodeProperties[] = [
         description: 'Search keyword (検索キーワード)',
       },
       {
-        displayName: 'Column Filter (JSON)',
+        displayName: 'Column Filter Hash',
         name: 'columnFilterHash',
-        type: 'json',
-        default: '{}',
-        description: 'Column filter conditions as JSON object. Example: {"ClassA": "value1", "Status": "100"}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Column filter conditions (e.g. ColumnA: value)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'ColumnA',
+                description: 'Column name',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'string',
+                default: '',
+                description: 'Filter value',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Column Filter Search Types (JSON)',
+        displayName: 'Column Sorter Hash',
+        name: 'columnSorterHash',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Column sort conditions (e.g. ColumnA: asc)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'ColumnA',
+                description: 'Column name',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'options',
+                options: [
+                  {
+                    name: 'Ascending',
+                    value: 'asc',
+                    description: 'Sort in ascending order',
+                  },
+                  {
+                    name: 'Descending',
+                    value: 'desc',
+                    description: 'Sort in descending order',
+                  },
+                ],
+                default: 'asc',
+                description: 'Sort direction',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        displayName: 'Column Filter Search Types',
         name: 'columnFilterSearchTypes',
-        type: 'json',
-        default: '{}',
-        description: 'Search method for each column. Values: PartialMatch, ExactMatch, ForwardMatch, PartialMatchMultiple, ExactMatchMultiple, ForwardMatchMultiple. Example: {"ClassA": "ExactMatch"}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Search method for each column',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'ColumnA',
+                description: 'Column name',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'options',
+                options: [
+                  {
+                    name: 'Partial Match',
+                    value: 'PartialMatch',
+                    description: 'Partial string matching',
+                  },
+                  {
+                    name: 'Exact Match',
+                    value: 'ExactMatch',
+                    description: 'Exact string matching',
+                  },
+                  {
+                    name: 'Forward Match',
+                    value: 'ForwardMatch',
+                    description: 'Forward string matching',
+                  },
+                  {
+                    name: 'Partial Match Multiple',
+                    value: 'PartialMatchMultiple',
+                    description: 'Partial match with multiple values',
+                  },
+                  {
+                    name: 'Exact Match Multiple',
+                    value: 'ExactMatchMultiple',
+                    description: 'Exact match with multiple values',
+                  },
+                  {
+                    name: 'Forward Match Multiple',
+                    value: 'ForwardMatchMultiple',
+                    description: 'Forward match with multiple values',
+                  },
+                ],
+                default: 'PartialMatch',
+                description: 'Search method',
+              },
+            ],
+          },
+        ],
       },
       {
         displayName: 'Column Filter Negatives',
         name: 'columnFilterNegatives',
         type: 'string',
         default: '',
-        description: 'Comma-separated list of columns for negative filtering (否定条件にする項目名). Example: "ClassA,Status"',
-      },
-      {
-        displayName: 'Column Sorter (JSON)',
-        name: 'columnSorterHash',
-        type: 'json',
-        default: '{}',
-        description: 'Sort conditions as JSON object. Values: asc, desc. Example: {"ClassA": "asc", "CreatedTime": "desc"}',
+        description:
+          'Comma-separated list of columns for negative filtering (否定条件にする項目名). Example: "ClassA,Status"',
       },
       {
         displayName: 'Grid Columns',
         name: 'gridColumns',
         type: 'string',
         default: '',
-        description: 'Comma-separated list of columns to return (返却される項目を制御). Example: "ResultId,Title,ClassA,Status"',
+        description:
+          'Comma-separated list of columns to return (返却される項目を制御). Example: "ResultId,Title,ClassA,Status"',
       },
       {
         displayName: 'API Data Type',
@@ -198,25 +323,53 @@ export const getFields: INodeProperties[] = [
         description: 'Display type for column values in response (レスポンスのValueの表示形式)',
       },
       {
-        displayName: 'API Column Hash (JSON)',
+        displayName: 'API Column Hash',
         name: 'apiColumnHash',
-        type: 'json',
-        default: '{}',
-        description: 'Per-column Key/Value display settings (項目単位でKey/Valueの表示形式を指定)',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Per-column Key/Value display settings',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'ColumnA',
+                description: 'Column name',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'string',
+                default: '',
+                description: 'Display setting value',
+              },
+            ],
+          },
+        ],
       },
       {
         displayName: 'Merge Session View Filters',
         name: 'mergeSessionViewFilters',
         type: 'boolean',
         default: false,
-        description: 'Whether to merge with session view filters (セッションのフィルタ条件とマージするか)',
+        description:
+          'Whether to merge with session view filters (セッションのフィルタ条件とマージするか)',
       },
       {
         displayName: 'Merge Session View Sorters',
         name: 'mergeSessionViewSorters',
         type: 'boolean',
         default: false,
-        description: 'Whether to merge with session view sorters (セッションのソート条件とマージするか)',
+        description:
+          'Whether to merge with session view sorters (セッションのソート条件とマージするか)',
       },
     ],
   },

@@ -119,39 +119,172 @@ export const recordDataFields: INodeProperties[] = [
 
       // ==================== ハッシュフィールド ====================
       {
-        displayName: 'Class Hash (JSON)',
+        displayName: 'Class Hash',
         name: 'classHash',
-        type: 'json',
-        default: '{}',
-        description: 'Classification fields (ClassA-ClassZ) as JSON object. Example: {"ClassA": "value1", "ClassB": "value2"}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Classification fields (ClassA-ClassZ)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'ClassA',
+                description: 'Field name (ClassA-ClassZ)',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'string',
+                default: '',
+                description: 'Field value',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Num Hash (JSON)',
+        displayName: 'Num Hash',
         name: 'numHash',
-        type: 'json',
-        default: '{}',
-        description: 'Numeric fields (NumA-NumZ) as JSON object. Example: {"NumA": 100, "NumB": 200}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Numeric fields (NumA-NumZ)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'NumA',
+                description: 'Field name (NumA-NumZ)',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'number',
+                default: 0,
+                description: 'Numeric value',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Date Hash (JSON)',
+        displayName: 'Date Hash',
         name: 'dateHash',
-        type: 'json',
-        default: '{}',
-        description: 'Date fields (DateA-DateZ) as JSON object. Example: {"DateA": "2024-01-01T00:00:00"}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Date fields (DateA-DateZ)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'DateA',
+                description: 'Field name (DateA-DateZ)',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'dateTime',
+                default: '',
+                description: 'Date value',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Description Hash (JSON)',
+        displayName: 'Description Hash',
         name: 'descriptionHash',
-        type: 'json',
-        default: '{}',
-        description: 'Description fields (DescriptionA-DescriptionZ) as JSON object. Example: {"DescriptionA": "text"}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Description fields (DescriptionA-DescriptionZ)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'DescriptionA',
+                description: 'Field name (DescriptionA-DescriptionZ)',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'string',
+                typeOptions: {
+                  rows: 3,
+                },
+                default: '',
+                description: 'Description text',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Check Hash (JSON)',
+        displayName: 'Check Hash',
         name: 'checkHash',
-        type: 'json',
-        default: '{}',
-        description: 'Checkbox fields (CheckA-CheckZ) as JSON object. Example: {"CheckA": true, "CheckB": false}',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Checkbox fields (CheckA-CheckZ)',
+        options: [
+          {
+            name: 'items',
+            displayName: 'Items',
+            values: [
+              {
+                displayName: 'Key',
+                name: 'key',
+                type: 'string',
+                default: '',
+                placeholder: 'CheckA',
+                description: 'Field name (CheckA-CheckZ)',
+              },
+              {
+                displayName: 'Value',
+                name: 'value',
+                type: 'boolean',
+                default: false,
+                description: 'Checkbox value',
+              },
+            ],
+          },
+        ],
       },
       {
         displayName: 'Attachments Hash (JSON)',
